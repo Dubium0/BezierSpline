@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<engine:UXML
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:engine="UnityEngine.UIElements"
+    xmlns:editor="UnityEditor.UIElements"
+    xsi:noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd"
+>
+    <Style src="project://database/Assets/BezierSplineTool/Editor/SplineEditor.uss?fileID=7433441132597879392&amp;guid=b37281a6c0f8aa54994d060bd9f91328&amp;type=3#SplineEditor" />
+	 <engine:VisualElement name="main-container" class="main-container">
+        
+        <!-- Header section with the title of the tool. -->
+        <engine:VisualElement name="header" class="header">
+            <engine:Label text="Spline Tool" class="title" />
+            <engine:Label text="v1.0" class="version-label" />
+        </engine:VisualElement>
+
+        <!-- A visual separator line. -->
+        <engine:VisualElement class="separator" />
+
+
+       
+                
+                <!-- The main "Create" button. -->
+        <engine:Button text="Create" name="create-button" class="action-button" />
+
+
+        <!-- Content section for input fields and controls. -->
+        <engine:VisualElement name="distance-mode-container" class="content-container">
+            
+            <!-- FloatField for user input. It has a name for querying and a label. -->
+            <engine:FloatField name="value-input-field" label="Resolution" class="value-field" />
+
+             <!-- The "Distance Mode" button. -->
+            <engine:Button text="Distance Mode" name="distance-mode-button" class="action-button" />
+          
+            
+        </engine:VisualElement>
+
+        
+
+    </engine:VisualElement>
+
+</engine:UXML>

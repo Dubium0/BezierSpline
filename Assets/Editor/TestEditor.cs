@@ -14,6 +14,7 @@ public class TestEditor : Editor
     {
         Test example = (Test)target;
 
+        
         EditorGUI.BeginChangeCheck();
 
         for (int i = 0; i < 4; i++)
@@ -26,8 +27,9 @@ public class TestEditor : Editor
             Undo.RecordObject(example, "Change Look At Target Position");
             example.UpdateSpline();
         }
-        Handles.color = Color.blue;
-        Handles.DrawPolyLine(example.DrawingPoints);
+        //Handles.color = Color.blue;
+        //Handles.DrawPolyLine(example.DrawingPoints);
+        
 
     }
 

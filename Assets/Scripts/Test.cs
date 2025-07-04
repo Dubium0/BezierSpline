@@ -26,7 +26,7 @@ public class Test : MonoBehaviour
         m_PreComputedCoeffs[3] = CubicSplineControlPoints[0];
     }
 
-    public float Distance = 1; 
+    public float Distance = 1;
 
     private void FillDrawingPoints()
     {
@@ -115,20 +115,19 @@ public class Test : MonoBehaviour
 
     public void DistributeDistancePoints(float distance)
     {
-        if (distance <=0) {
+        if (distance <= 0)
+        {
             throw new Exception("Distance cannot be zero");
         }
         DistancePoints.Clear();
-        
+
         float maxDistance = DistanceLUT[m_MaxDrawingResolution - 1];
 
         if ((maxDistance / distance) > 128)
         {
             distance = maxDistance / 128.0f; // capping to 128 because it can grow a LOT.
         }
-        
 
-     
         for (float distanceToRequest = 0; distanceToRequest <= maxDistance; distanceToRequest += distance) // +1 because |-| if the - interval | corresponds to points and number of points always +1 more.
         {
             Vector3 spawnPoint = GetPoint(GetTFromDistanceLUT(distanceToRequest));
@@ -138,6 +137,12 @@ public class Test : MonoBehaviour
 
         }
     }
-    
+
+    void OnDrawGizmos()
+    {
+
+        Gizmos.color = Color.blue;
+        Gizmos.DrawLineStrip(DrawingPoints, false);
+    }
 
 }
