@@ -15,6 +15,9 @@ public class Test : MonoBehaviour
     public Vector3[] DrawingPoints = new Vector3[m_MaxDrawingResolution];
 
     public float[] DistanceLUT = new float[m_MaxDrawingResolution];
+
+    public List<GameObject> DistancePoints = new();
+
     private void PrecomputeCoeffs()
     {
         m_PreComputedCoeffs[0] = CubicSplineControlPoints[3] - 3.0f * CubicSplineControlPoints[2] + 3.0f * CubicSplineControlPoints[1] - CubicSplineControlPoints[0];
@@ -22,8 +25,8 @@ public class Test : MonoBehaviour
         m_PreComputedCoeffs[2] = 3.0f * (CubicSplineControlPoints[1] - CubicSplineControlPoints[0]);
         m_PreComputedCoeffs[3] = CubicSplineControlPoints[0];
     }
-    
-    public float Distance = 1;
+
+    public float Distance = 1; 
 
     private void FillDrawingPoints()
     {
@@ -85,7 +88,7 @@ public class Test : MonoBehaviour
         float interpolationFactor = (distance - DistanceLUT[head]) / (DistanceLUT[tail] - DistanceLUT[head]);
         float upperBound = tail * step;
         float lowerBound = head * step;
-        return (upperBound - lowerBound) * interpolationFactor + lowerBound; 
+        return (upperBound - lowerBound) * interpolationFactor + lowerBound;
 
     }
     public void UpdateSpline()
@@ -110,6 +113,31 @@ public class Test : MonoBehaviour
         return m_PreComputedCoeffs[0] * 3 * t_square + m_PreComputedCoeffs[1] * 2 * t + m_PreComputedCoeffs[2];
     }
 
+    public void DistributeDistancePoints(float distance)
+    {
+        if (distance <=0) {
+            throw new Exception("Distance cannot be zero");
+        }
+        DistancePoints.Clear();
+        
+        float maxDistance = DistanceLUT[m_MaxDrawingResolution - 1];
+
+        if ((maxDistance / distance) > 128)
+        {
+            distance = maxDistance / 128.0f; // capping to 128 because it can grow a LOT.
+        }
+        
+
+     
+        for (float distanceToRequest = 0; distanceToRequest <= maxDistance; distanceToRequest += distance) // +1 because |-| if the - interval | corresponds to points and number of points always +1 more.
+        {
+            Vector3 spawnPoint = GetPoint(GetTFromDistanceLUT(distanceToRequest));
+            GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            sphere.transform.position = spawnPoint;
+            DistancePoints.Add(sphere);
+
+        }
+    }
     
 
 }

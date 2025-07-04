@@ -30,18 +30,26 @@ public class TestEditor : Editor
         Handles.DrawPolyLine(example.DrawingPoints);
 
     }
-    
+
     public override void OnInspectorGUI()
     {
         Test example = (Test)target;
 
         DrawDefaultInspector();
-        if (GUILayout.Button(new GUIContent("Get Distance", "nothing")))
+        //if (GUILayout.Button(new GUIContent("Get Distance", "nothing")))
+        //{
+        //    float t = example.GetTFromDistanceLUT(example.Distance);
+        //    Debug.Log(" Calculated t : " + t);
+        //    Debug.Log(" Point at t : " + example.GetPoint(t));
+        //}
+
+        if (GUILayout.Button(new GUIContent("Distance Mode", "Distrubutes points to equal distances")))
         {
-            float t = example.GetTFromDistanceLUT(example.Distance);
-            Debug.Log(" Calculated t : " + t);
-            Debug.Log(" Point at t : " + example.GetPoint(t));
+
+            example.DistributeDistancePoints(example.Distance);
+            
         }
+        
     }
     
     
