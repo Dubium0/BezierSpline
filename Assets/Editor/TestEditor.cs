@@ -29,13 +29,6 @@ public class TestEditor : Editor
         Handles.color = Color.blue;
         Handles.DrawPolyLine(example.DrawingPoints);
 
-        if (GUILayout.Button(new GUIContent("Get Distance", "nothing")))
-        {
-            float t = example.GetTFromDistanceLUT(example.Distance);
-            Debug.Log(" Calculated t : " + t);
-            Debug.Log(" Point at t : " + example.GetPoint(t));
-        }
-
     }
     
     public override void OnInspectorGUI()
