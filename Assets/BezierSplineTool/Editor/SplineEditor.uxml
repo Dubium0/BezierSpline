@@ -17,8 +17,6 @@
         <!-- A visual separator line. -->
         <engine:VisualElement class="separator" />
 
-
-       
                 
                 <!-- The main "Create" button. -->
         <engine:Button text="Create" name="create-button" class="action-button" />
@@ -28,8 +26,10 @@
         <engine:VisualElement name="distance-mode-container" class="content-container">
             
             <!-- FloatField for user input. It has a name for querying and a label. -->
-            <engine:FloatField name="value-input-field" label="Resolution" class="value-field" />
+            <engine:FloatField name="value-input-field" label="Distance" class="value-field" />
 
+            <engine:Toggle name="enable-distanced-preview-toggle" label="Enable Distance Preview"  />
+        
              <!-- The "Distance Mode" button. -->
             <engine:Button text="Distance Mode" name="distance-mode-button" class="action-button" />
           

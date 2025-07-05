@@ -3,18 +3,17 @@ using UnityEngine;
 
 namespace BezierSplineTool.Core
 {
-    
 
-public class CubicBezierSpline : ISpline
+
+    public class CubicBezierSpline : ISpline
     {
-        private Vector3[] m_ControlPoints;
+        private Vector3[] m_ControlPoints = new Vector3[4];
 
         // I precompute the coefficents than calculate the bezier curve with power series polynomial version of it.
-        private Vector3[] m_PreComputedCoeffs;
-
-        public event Action<ISpline> OnValidation;
+        private Vector3[] m_PreComputedCoeffs =new Vector3[4];
 
         public ReadOnlySpan<Vector3> ControlPoints => m_ControlPoints;
+
 
         public Vector3 GetPoint(float t)
         {
@@ -24,7 +23,7 @@ public class CubicBezierSpline : ISpline
             return m_PreComputedCoeffs[0] * t_cube + m_PreComputedCoeffs[1] * t_square + m_PreComputedCoeffs[2] * t + m_PreComputedCoeffs[3];
         }
 
-     
+
 
         public void UpdateControlPoints(ReadOnlySpan<Vector3> t_ControlPoints)
         {
@@ -36,11 +35,11 @@ public class CubicBezierSpline : ISpline
             {
                 m_ControlPoints[i] = t_ControlPoints[i];
             }
-            
+
             PrecomputeCoeffs();
-            OnValidation.Invoke(this);
-        }
         
+        }
+
         private void PrecomputeCoeffs()
         {
             m_PreComputedCoeffs[0] = m_ControlPoints[3] - 3.0f * m_ControlPoints[2] + 3.0f * m_ControlPoints[1] - m_ControlPoints[0];

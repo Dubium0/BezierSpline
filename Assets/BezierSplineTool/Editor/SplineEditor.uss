@@ -44,7 +44,21 @@
 .value-field {
     margin-bottom: 15px;
 }
+.horizontal-container {
+    flex-direction: row; /* Arranges children side-by-side */
+    align-items: center;  
+    justify-content: flex-start; 
+    margin-top: 5px;
+    margin-bottom: 5px;
+    padding : 5px;
+}
 
+/* A simple style for the items inside the container to make them visible */
+.checkbox-item > .unity-label{
+    /* Adds space to the right of each checkbox, separating it from the next one. */
+    font-size: 14px;
+    min-width: 100px;
+}
 /* Style the label part of the FloatField */
 .value-field > .unity-label {
    
@@ -64,8 +78,6 @@
  
     box-shadow: 0 0 8px rgba(97, 218, 251, 0.6);
 }
-
-
 
 .action-button {
     font-size: 14px;

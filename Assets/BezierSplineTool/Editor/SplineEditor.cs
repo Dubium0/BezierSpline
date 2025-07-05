@@ -1,90 +1,184 @@
-using System;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
+using BezierSplineTool.Core;
+using System.Collections.Generic;
 
-public class SplineEditor : EditorWindow
+namespace BezierSplineTool.Editor
 {
-    [SerializeField]
-    private VisualTreeAsset m_VisualTreeAsset = default;
-
-    private const float MinDistanceValue = 1.0f / 16;
-
-    private Button m_CreateButton;
-    private VisualElement m_DistanceModeContainer;
-    private Button m_DistanceModeButton;
-    private FloatField m_DistanceValue;
-
-
-    [MenuItem("Window/BezierSplineTool/SplineEditor")]
-    public static void ShowWindow()
+    public class SplineEditor : EditorWindow
     {
-        SplineEditor wnd = GetWindow<SplineEditor>();
-        wnd.titleContent = new GUIContent("SplineEditor");
-        wnd.minSize = new Vector2(350, 250);
-    }
+        [SerializeField]
+        private VisualTreeAsset m_VisualTreeAsset = default;
 
-    public void CreateGUI()
-    {
-        VisualElement root = rootVisualElement;
+        private const float MinDistanceValue = 1.0f / 16;
 
-        VisualElement labelFromUXML = m_VisualTreeAsset.Instantiate();
-        root.Add(labelFromUXML);
-        SetupUIElements(root);
-    }
+        private Button m_CreateButton;
+        private VisualElement m_DistanceModeContainer;
+        private Button m_DistanceModeButton;
+        private Toggle m_DistancePreviewToggle;
+        private FloatField m_DistanceValue;
 
+        private SplineLane m_SplineLane;
 
-    private void SetupUIElements(VisualElement t_Root)
-    {
-        m_CreateButton = t_Root.Q<Button>("create-button");
-        m_DistanceModeButton = t_Root.Q<Button>("distance-mode-button");
-        m_DistanceValue = t_Root.Q<FloatField>("value-input-field");
-        m_DistanceModeContainer = t_Root.Q<VisualElement>("distance-mode-container");
-
-        if (m_CreateButton != null)
+        [MenuItem("Window/BezierSplineTool/SplineEditor")]
+        public static void ShowWindow()
         {
-            m_CreateButton.clicked += OnCreateButtonClicked;
+            SplineEditor wnd = GetWindow<SplineEditor>();
+            wnd.titleContent = new GUIContent("SplineEditor");
+            wnd.minSize = new Vector2(350, 250);
         }
 
-       
-        if (m_DistanceModeButton != null)
+        public void CreateGUI()
         {
-            m_DistanceModeButton.clicked += OnDistanceModeButtonClicked;
+            VisualElement root = rootVisualElement;
+            root.Add(m_VisualTreeAsset.Instantiate());
+            SetupUIElements(root);
+        }
+
+        private void OnEnable()
+        {
+            SceneView.duringSceneGui += OnSceneGUI;
+        }
+
+        private void OnDisable()
+        {
+            SceneView.duringSceneGui -= OnSceneGUI;
+        }
+
+        private void SetupUIElements(VisualElement root)
+        {
+            m_CreateButton = root.Q<Button>("create-button");
+            m_DistanceModeButton = root.Q<Button>("distance-mode-button");
+            m_DistanceValue = root.Q<FloatField>("value-input-field");
+            m_DistanceModeContainer = root.Q<VisualElement>("distance-mode-container");
+            m_DistancePreviewToggle = root.Q<Toggle>("enable-distanced-preview-toggle");
+
+            if (m_CreateButton != null) m_CreateButton.clicked += OnCreateButtonClicked;
+            if (m_DistanceModeButton != null) m_DistanceModeButton.clicked += OnDistanceModeButtonClicked;
+
+            if (m_DistanceValue != null)
+            {
+                m_DistanceValue.value = 2;
+                m_DistanceValue.RegisterValueChangedCallback(OnDistanceValueChanged);
+            }
+
+            if (m_DistancePreviewToggle != null)
+            {
+                m_DistancePreviewToggle.value = false;
+                m_DistancePreviewToggle.RegisterValueChangedCallback(evt => {
+                    if (m_SplineLane != null)
+                    {
+                        m_SplineLane.SplineParameterizerL.GenerateDistributedPoints(m_DistanceValue.value);
+                        m_SplineLane.SplineParameterizerR.GenerateDistributedPoints(m_DistanceValue.value);
+                    }
+                    SceneView.RepaintAll();
+                });
+            }
+
+            if (m_DistanceModeContainer != null) m_DistanceModeContainer.style.display = DisplayStyle.None;
+        }
+
+        private void OnCreateButtonClicked()
+        {
+            m_CreateButton.style.display = DisplayStyle.None;
+            m_DistanceModeContainer.style.display = DisplayStyle.Flex;
+            m_SplineLane = new SplineLane(Vector3.zero);
 
         }
 
-       
-        if (m_DistanceValue != null)
+        private void OnDistanceModeButtonClicked()
         {
+            if (m_SplineLane == null) return;
 
-            m_DistanceValue.value = MinDistanceValue;
-            m_DistanceValue.RegisterValueChangedCallback(OnDistanceValueChanged);
-
+            GenerateAndVisualizeDistributedPoints(m_SplineLane.SplineParameterizerL, m_SplineLane.SplineParameterizerR);
         }
-        if (m_DistanceModeContainer != null)
+
+        private void GenerateAndVisualizeDistributedPoints(params SplineParameterizer[] parameterizers)
         {
-            m_DistanceModeContainer.style.display = DisplayStyle.None;
-        }
-    }
+            GameObject spherePrefab = GameObject.CreatePrimitive(PrimitiveType.Sphere);
 
-    private void OnDistanceValueChanged(ChangeEvent<float> evt)
-    {
-        if (evt.newValue < MinDistanceValue)
+            foreach (var parameterizer in parameterizers)
+            {
+                parameterizer.GenerateDistributedPoints(m_DistanceValue.value);
+                foreach (Vector3 position in parameterizer.DistributedPoints)
+                {
+                    Instantiate(spherePrefab, position, Quaternion.identity);
+                }
+            }
+
+            DestroyImmediate(spherePrefab);
+        }
+
+        private void OnDistanceValueChanged(ChangeEvent<float> evt)
         {
-            m_DistanceValue.SetValueWithoutNotify(MinDistanceValue);
+            float newDistance = Mathf.Max(evt.newValue, MinDistanceValue);
+            m_DistanceValue.SetValueWithoutNotify(newDistance);
+
+            if (m_DistancePreviewToggle.value && m_SplineLane != null)
+            {
+                m_SplineLane.SplineParameterizerL.GenerateDistributedPoints(newDistance);
+                m_SplineLane.SplineParameterizerR.GenerateDistributedPoints(newDistance);
+                SceneView.RepaintAll();
+            }
         }
-    }
 
-    private void OnDistanceModeButtonClicked()
-    {
-        Debug.Log("Distance Mode button clicked!");
-    }
+        private void OnSceneGUI(SceneView sceneView)
+        {
+            if (m_SplineLane == null) return;
 
-    private void OnCreateButtonClicked()
-    {
-       
-        m_DistanceModeContainer.style.display = DisplayStyle.Flex;
+            DrawSplineHandles(m_SplineLane.SplineL, m_SplineLane.SplineParameterizerL);
+            DrawSplineHandles(m_SplineLane.SplineR, m_SplineLane.SplineParameterizerR);
 
-        m_CreateButton.style.display = DisplayStyle.None;
+            DrawSpline(m_SplineLane.SplineParameterizerL, Color.green);
+            DrawSpline(m_SplineLane.SplineParameterizerR, Color.blue);
+
+            if (m_DistancePreviewToggle.value)
+            {
+                DrawDistributedPoints(m_SplineLane.SplineParameterizerL.DistributedPoints);
+                DrawDistributedPoints(m_SplineLane.SplineParameterizerR.DistributedPoints);
+            }
+        }
+
+        private void DrawSplineHandles(ISpline spline, SplineParameterizer parameterizer)
+        {
+            Vector3[] controlPoints = new Vector3[spline.ControlPoints.Length];
+            for (int i = 0; i < controlPoints.Length; i++)
+            {
+                controlPoints[i] = spline.ControlPoints[i];
+            }
+
+            EditorGUI.BeginChangeCheck();
+            for (int i = 0; i < controlPoints.Length; i++)
+            {
+                controlPoints[i] = Handles.PositionHandle(controlPoints[i], Quaternion.identity);
+            }
+
+            if (EditorGUI.EndChangeCheck())
+            {
+                
+                spline.UpdateControlPoints(controlPoints);
+                parameterizer.ParameterizeSpline();
+                if (m_DistancePreviewToggle.value)
+                {
+                    parameterizer.GenerateDistributedPoints(m_DistanceValue.value);
+                }
+            }
+        }
+
+        private void DrawSpline(SplineParameterizer parameterizer, Color color)
+        {
+            Handles.color = color;
+            Handles.DrawPolyLine(parameterizer.Points);
+        }
+
+        private void DrawDistributedPoints(IEnumerable<Vector3> points)
+        {
+            Handles.color = Color.white;
+            foreach (Vector3 position in points)
+            {
+                Handles.SphereHandleCap(0, position, Quaternion.identity, 0.25f, EventType.Repaint);
+            }
+        }
     }
 }

@@ -5,7 +5,7 @@
 
 
 using System;
-
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace BezierSplineTool.Core
@@ -13,27 +13,33 @@ namespace BezierSplineTool.Core
 
     public class SplineParameterizer
     {
-        
+
         private const int Resolution = 32;
+
         private float[] m_DistanceLUT = new float[Resolution];
 
-        public ReadOnlySpan<float> DistanceLut => m_DistanceLUT;
-
         public float ArcLength => m_DistanceLUT[Resolution - 1];
-        
-    
-        public void FillDistanceLUT(ISpline t_Spline)
-        {
-            float step = 1 / (Resolution - 1);
-            Vector3 prevPoint = t_Spline.GetPoint(0);
+
+        private Vector3[] m_Points = new Vector3[Resolution];
+
+        public Vector3[] Points => m_Points;
+
+        private List<Vector3> m_DistributedPoints = new();
+        public List<Vector3> DistributedPoints => m_DistributedPoints;
+
+        private readonly ISpline m_Spline;
+
+        public SplineParameterizer(ISpline t_Spline) {
+            m_Spline = t_Spline;
             
-            for (int i = 1; i < Resolution; i++)
-            {
-                Vector3 currentPoint = t_Spline.GetPoint(i * step);
-                m_DistanceLUT[i] = m_DistanceLUT[i - 1] + Vector3.Distance(prevPoint, currentPoint);
-                prevPoint = currentPoint;
-            }
         }
+
+        public void ParameterizeSpline()
+        {
+            FillPoints();
+            //FillDistanceLUT(); I only need to Generate the lut before generating Distributed Points;
+        }
+
 
         public float GetT(float distance)
         {
@@ -80,8 +86,46 @@ namespace BezierSplineTool.Core
 
         }
 
-        
 
+        private void FillPoints()
+        {
+            float step = 1.0f / (Resolution - 1);
+            for (int i = 0; i < Resolution; i++)
+            {
+                m_Points[i] = m_Spline.GetPoint(i * step);
+            }
+        }
+        private void FillDistanceLUT()
+        {
+
+            for (int i = 1; i < Resolution; i++)
+            {
+
+                m_DistanceLUT[i] = m_DistanceLUT[i - 1] + Vector3.Distance(m_Points[i - 1], m_Points[i]);
+
+            }
+        }
+
+        public void GenerateDistributedPoints(float t_Distance)
+        {
+            FillDistanceLUT();
+            if (t_Distance <= 0)
+            {
+                throw new Exception("Distance cannot be negative or zero");
+            }
+
+            int numberOfPoints = (int)MathF.Round(ArcLength / t_Distance) + 1;
+            m_DistributedPoints.Clear();
+            for (int i = 0; i < numberOfPoints; i++)
+            {
+                m_DistributedPoints.Add(m_Spline.GetPoint(GetT(i * t_Distance)));
+            }
+            
+        }
+
+        
+        
+        
     }
 
 }
