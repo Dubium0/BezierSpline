@@ -88,6 +88,7 @@ namespace BezierSplineTool.Editor
             m_CreateButton.style.display = DisplayStyle.None;
             m_DistanceModeContainer.style.display = DisplayStyle.Flex;
             m_SplineLane = new SplineLane(Vector3.zero);
+            FocusCamera(Vector3.zero);
 
         }
 
@@ -182,6 +183,21 @@ namespace BezierSplineTool.Editor
             foreach (Vector3 position in points)
             {
                 Handles.SphereHandleCap(0, position, Quaternion.identity, 0.25f, EventType.Repaint);
+            }
+        }
+
+        private void FocusCamera(Vector3 t_Origin)
+        {
+            SceneView sceneView = SceneView.lastActiveSceneView;
+
+            if (sceneView != null)
+            {
+                
+                Quaternion cameraRotation = Quaternion.LookRotation(new Vector3(0.5f, -0.5f, 0.5f));
+
+                
+                sceneView.LookAt(t_Origin, cameraRotation, 10f);
+                sceneView.Frame(new Bounds(t_Origin, Vector3.one*5), false);
             }
         }
     }

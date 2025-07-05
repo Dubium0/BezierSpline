@@ -39,9 +39,8 @@ namespace BezierSplineTool.Core
         public void ParameterizeSpline()
         {
             FillPoints();
-            //FillDistanceLUT(); I only need to Generate the lut before generating Distributed Points;
+            FillDistanceLUT();
         }
-
         /// <summary>
         /// From a distance parameter, finds the corresponding t value for the bezier curve.
         /// Performs binary search to find two distances which the given distance lie between. Than finds the interpolation factor for this line and approximates the t value. 
@@ -115,7 +114,7 @@ namespace BezierSplineTool.Core
         // Since 
         public void GenerateDistributedPoints(float t_Distance)
         {
-            FillDistanceLUT();
+           
             if (t_Distance <= 0)
             {
                 throw new Exception("Distance cannot be negative or zero");
