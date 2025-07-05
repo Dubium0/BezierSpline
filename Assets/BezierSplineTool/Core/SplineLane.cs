@@ -4,7 +4,9 @@ using UnityEngine;
 
 namespace BezierSplineTool.Core
 {
-
+    /// <summary>
+    /// Generates the necessery data to visualize and control 2 bezier lines.
+    /// </summary>
     public class SplineLane
     {
         private CubicBezierSpline m_SplineR;
@@ -20,7 +22,7 @@ namespace BezierSplineTool.Core
         public SplineParameterizer SplineParameterizerR => m_SplineParameterizerR;
         public SplineParameterizer SplineParameterizerL => m_SplineParameterizerL;
 
-    
+        // this is hard coded for simplicity it can be further parameterized
         public SplineLane(Vector3 t_Origin)
         {
             m_SplineR = new();

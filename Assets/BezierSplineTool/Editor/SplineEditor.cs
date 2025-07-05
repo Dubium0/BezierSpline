@@ -6,6 +6,9 @@ using System.Collections.Generic;
 
 namespace BezierSplineTool.Editor
 {
+    /// <summary>
+    /// Enables to creating and manipulating SplineLane fully on editor.
+    /// </summary>
     public class SplineEditor : EditorWindow
     {
         [SerializeField]
@@ -66,7 +69,8 @@ namespace BezierSplineTool.Editor
             if (m_DistancePreviewToggle != null)
             {
                 m_DistancePreviewToggle.value = false;
-                m_DistancePreviewToggle.RegisterValueChangedCallback(evt => {
+                m_DistancePreviewToggle.RegisterValueChangedCallback(evt =>
+                {
                     if (m_SplineLane != null)
                     {
                         m_SplineLane.SplineParameterizerL.GenerateDistributedPoints(m_DistanceValue.value);
@@ -156,7 +160,7 @@ namespace BezierSplineTool.Editor
 
             if (EditorGUI.EndChangeCheck())
             {
-                
+
                 spline.UpdateControlPoints(controlPoints);
                 parameterizer.ParameterizeSpline();
                 if (m_DistancePreviewToggle.value)

@@ -7,7 +7,9 @@ using UnityEngine;
 namespace BezierSplineTool.Core
 {
 
-    
+    /// <summary>
+    /// Interface for any kind of Spline. For this case this is actually unnecessary but I wanted to provide a flexibility for future improvements.
+    /// </summary>
     public interface ISpline
     {
         Vector3 GetPoint(float t);

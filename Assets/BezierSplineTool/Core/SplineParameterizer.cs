@@ -10,7 +10,9 @@ using UnityEngine;
 
 namespace BezierSplineTool.Core
 {
-
+    /// <summary>
+    /// This class generates necessary caches and LUTs to improve overall performance of curve operations.
+    /// </summary>
     public class SplineParameterizer
     {
 
@@ -40,7 +42,12 @@ namespace BezierSplineTool.Core
             //FillDistanceLUT(); I only need to Generate the lut before generating Distributed Points;
         }
 
-
+        /// <summary>
+        /// From a distance parameter, finds the corresponding t value for the bezier curve.
+        /// Performs binary search to find two distances which the given distance lie between. Than finds the interpolation factor for this line and approximates the t value. 
+        /// </summary>
+        /// <param name="distance"></param>
+        /// <returns></returns>
         public float GetT(float distance)
         {
             int tail = Resolution - 1;
@@ -105,7 +112,7 @@ namespace BezierSplineTool.Core
 
             }
         }
-
+        // Since 
         public void GenerateDistributedPoints(float t_Distance)
         {
             FillDistanceLUT();

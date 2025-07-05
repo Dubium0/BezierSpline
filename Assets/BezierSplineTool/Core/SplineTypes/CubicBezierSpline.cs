@@ -4,7 +4,9 @@ using UnityEngine;
 namespace BezierSplineTool.Core
 {
 
-
+    /// <summary>
+    /// Bezier curve with 4 control points. It precomputes coefficients to achieve faster point access.
+    /// </summary>
     public class CubicBezierSpline : ISpline
     {
         private Vector3[] m_ControlPoints = new Vector3[4];
@@ -20,7 +22,7 @@ namespace BezierSplineTool.Core
             float t_square = t * t;
             float t_cube = t_square * t;
 
-            return m_PreComputedCoeffs[0] * t_cube + m_PreComputedCoeffs[1] * t_square + m_PreComputedCoeffs[2] * t + m_PreComputedCoeffs[3];
+            return m_PreComputedCoeffs[0] * t_cube + m_PreComputedCoeffs[1] * t_square + m_PreComputedCoeffs[2] * t + m_PreComputedCoeffs[3]; 
         }
 
 
@@ -29,7 +31,7 @@ namespace BezierSplineTool.Core
         {
             if (t_ControlPoints.Length != 4)
             {
-                throw new Exception("Cubic Bezier Requires 4 control points!");
+                throw new ArgumentException("Cubic Bezier Requires 4 control points!");
             }
             for (int i = 0; i < 4; i++)
             {
